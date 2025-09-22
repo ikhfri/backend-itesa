@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" 
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CLIENT
+  WORKER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  DONE
+  CANCELED
+}
+
+model User {
+  id        String                  @id @default(uuid())
+  name      String
+  email     String                  @unique
+  password  String?                 // Required untuk manual, optional untuk Google
+  role      Role                    @default(CLIENT)
+  phone     String?
+  worker    Worker?
+  orders    Order[]
+  location  Location?
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+}
+
+
+model Worker {
+  id        String        @id @default(uuid())
+  userId    String        @unique
+  user      User          @relation(fields: [userId], references: [id])
+  bio       String?
+  price     Float?
+  skills    WorkerSkill[]
+  services  Service[]
+  orders    Order[]       
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Skill {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  workerSkills WorkerSkill[]
+}
+
+model WorkerSkill {
+  workerId  String
+  skillId   String
+  worker    Worker @relation(fields: [workerId], references: [id])
+  skill     Skill  @relation(fields: [skillId], references: [id])
+
+  @@id([workerId, skillId])
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  workerId    String
+  worker      Worker   @relation(fields: [workerId], references: [id])
+  title       String
+  description String?
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Location {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  latitude  Float
+  longitude Float
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  clientId    String
+  client      User        @relation(fields: [clientId], references: [id])
+  workerId    String
+  worker      Worker      @relation(fields: [workerId], references: [id])
+  serviceDate DateTime
+  status      OrderStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}

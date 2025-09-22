@@ -1,0 +1,583 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Serabutan API",
+    "description": "RESTful API for a service marketplace similar to Fastwork.id, supporting Google OAuth authentication, role-based access (CLIENT, WORKER, ADMIN), and features like worker profile management, service creation, order placement via WhatsApp, and location-based worker search using the Haversine formula."
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "JWT"
+    }
+  },
+  "paths": {
+    "/google": {
+      "get": {
+        "description": "",
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/google/callback": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/upgrade-worker": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/nearby": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/worker/{workerId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "workerId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/upsert": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "john@example.com"
+        },
+        "role": {
+          "type": "string",
+          "example": "CLIENT"
+        },
+        "phone": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        }
+      }
+    },
+    "Worker": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "userId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "bio": {
+          "type": "string",
+          "example": "Experienced handyman specializing in plumbing"
+        },
+        "price": {
+          "type": "number",
+          "example": 50
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "skill": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "uuid-string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Plumbing"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "uuid-string"
+              },
+              "title": {
+                "type": "string",
+                "example": "Pipe Repair"
+              },
+              "price": {
+                "type": "number",
+                "example": 30
+              }
+            }
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        }
+      }
+    },
+    "Service": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "workerId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "title": {
+          "type": "string",
+          "example": "Pipe Repair"
+        },
+        "description": {
+          "type": "string",
+          "example": "Fixing leaks and pipe issues"
+        },
+        "price": {
+          "type": "number",
+          "example": 30
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "clientId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "workerId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "serviceDate": {
+          "type": "string",
+          "example": "2025-09-23T10:00:00Z"
+        },
+        "status": {
+          "type": "string",
+          "example": "PENDING"
+        },
+        "note": {
+          "type": "string",
+          "example": "Please bring tools"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "userId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "latitude": {
+          "type": "number",
+          "example": -6.1751
+        },
+        "longitude": {
+          "type": "number",
+          "example": 106.865
+        },
+        "address": {
+          "type": "string",
+          "example": "Jakarta, Indonesia"
+        },
+        "createdAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        },
+        "updatedAt": {
+          "type": "string",
+          "example": "2025-09-22T11:02:00Z"
+        }
+      }
+    },
+    "WorkerProfileInput": {
+      "type": "object",
+      "properties": {
+        "bio": {
+          "type": "string",
+          "example": "Experienced handyman"
+        },
+        "price": {
+          "type": "number",
+          "example": 50
+        },
+        "phone": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "skills": {
+          "type": "array",
+          "example": [
+            "Plumbing",
+            "Electrical"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ServiceInput": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "example": "Pipe Repair"
+        },
+        "description": {
+          "type": "string",
+          "example": "Fixing leaks and pipe issues"
+        },
+        "price": {
+          "type": "number",
+          "example": 30
+        }
+      }
+    },
+    "OrderInput": {
+      "type": "object",
+      "properties": {
+        "workerId": {
+          "type": "string",
+          "example": "uuid-string"
+        },
+        "serviceDate": {
+          "type": "string",
+          "example": "2025-09-23T10:00:00Z"
+        },
+        "note": {
+          "type": "string",
+          "example": "Please bring tools"
+        }
+      }
+    },
+    "LocationInput": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number",
+          "example": -6.1751
+        },
+        "longitude": {
+          "type": "number",
+          "example": 106.865
+        },
+        "address": {
+          "type": "string",
+          "example": "Jakarta, Indonesia"
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "example": "Error message"
+        }
+      }
+    }
+  }
+}
