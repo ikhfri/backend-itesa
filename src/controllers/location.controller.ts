@@ -191,8 +191,7 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
           updatedAt: loc.updatedAt,
         })
       )
-      .sort((a: NearbyLocation, b: NearbyLocation) => a.distance - b.distance);
-
+      .sort((a: NearbyLocation, b: NearbyLocation) => a.distance - b.distance); 
     return res.status(200).json(nearby);
   } catch (error) {
     console.error("Error fetching nearby locations:", error);
