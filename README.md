@@ -171,6 +171,7 @@ Dikelola oleh **Prisma** dengan model utama:
 | Method | Endpoint                   | Deskripsi               | Role   |
 |--------|----------------------------|-------------------------|--------|
 | POST   | `/service`                 | Buat layanan baru       | WORKER |
+| GET    | `/service`                 | Buat GET All Service    | -      |
 | PUT    | `/service/:id`             | Update layanan          | WORKER |
 | DELETE | `/service/:id`             | Hapus layanan           | WORKER |
 | GET    | `/service/worker/:workerId`| Lihat layanan worker    | -      |
