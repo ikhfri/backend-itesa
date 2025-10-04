@@ -4,7 +4,7 @@ import { z } from "zod";
 import { locationSchema } from "../dtos/location.dto";
 import NodeGeocoder from "node-geocoder";
 import dotenv from "dotenv";
-dotenv.config(); 
+dotenv.config();
 
 const geocoder = NodeGeocoder({
   provider: "openstreetmap",
@@ -37,12 +37,10 @@ export const upsertLocation = async (req: Request, res: Response) => {
   try {
     const parsed = locationSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res
-        .status(400)
-        .json({
-          message: "Invalid request body",
-          errors: parsed.error.flatten(),
-        });
+      return res.status(400).json({
+        message: "Invalid request body",
+        errors: parsed.error.flatten(),
+      });
     }
 
     let { latitude, longitude, address } = parsed.data;
@@ -53,7 +51,7 @@ export const upsertLocation = async (req: Request, res: Response) => {
       if (geoResult.length > 0) {
         latitude = geoResult[0].latitude;
         longitude = geoResult[0].longitude;
-        address = geoResult[0].formattedAddress || address; 
+        address = geoResult[0].formattedAddress || address;
       } else {
         return res
           .status(400)
@@ -72,12 +70,10 @@ export const upsertLocation = async (req: Request, res: Response) => {
     }
 
     if (!latitude || !longitude) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Latitude and longitude are required or must be resolvable from address",
-        });
+      return res.status(400).json({
+        message:
+          "Latitude and longitude are required or must be resolvable from address",
+      });
     }
 
     const location = await prisma.location.upsert({
@@ -122,20 +118,6 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
 
     const { lat, lon, maxDistance } = parsed.data;
 
-    const locations = await prisma.location.findMany({
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            phone: true,
-          },
-        },
-      },
-    });
-
     type LocationWithUser = {
       id: string;
       userId: string;
@@ -171,7 +153,21 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
       updatedAt: Date;
     };
 
-    const nearby = locations
+    const locations: LocationWithUser[] = await prisma.location.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    const nearby: NearbyLocation[] = locations
       .filter((loc: LocationWithUser) => {
         const distance = haversine(lat, lon, loc.latitude, loc.longitude);
         return distance <= maxDistance;
