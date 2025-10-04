@@ -136,7 +136,22 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
       },
     });
 
-    type LocationWithUser = (typeof locations)[number];
+    type LocationWithUser = {
+      id: string;
+      userId: string;
+      latitude: number;
+      longitude: number;
+      address: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        role: string;
+        phone: string | null;
+      };
+    };
 
     const nearby = locations
       .filter((loc: LocationWithUser) => {
