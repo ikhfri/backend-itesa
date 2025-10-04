@@ -2,7 +2,6 @@ import express, { Application } from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./docs/swagger.json";
 import dotenv from "dotenv";
 import { prisma } from "./utils/prisma";
 import authRoutes from "./routes/auth.routes";
@@ -13,7 +12,7 @@ import locationRoutes from "./routes/location.routes";
 import cors from "cors";
 
 dotenv.config();
-
+const swaggerDocument = require("./docs/swagger.json");
 const app: Application = express();
 app.use(express.json());
 
@@ -67,7 +66,7 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/worker", workerRoutes);
-app.use("/service", serviceRoutes);
+app.use("/service", serviceRoutes); 
 app.use("/order", orderRoutes);
 app.use("/location", locationRoutes);
 

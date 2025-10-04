@@ -125,7 +125,6 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
 
     const { lat, lon, maxDistance } = parsed.data;
 
-    // Ambil semua lokasi dengan data user terkait
     const locations = await prisma.location.findMany({
       include: {
         user: {
@@ -140,13 +139,12 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
       },
     });
 
-    // Filter dan hitung jarak
     const nearby = locations
       .filter((loc) => {
         const distance = haversine(lat, lon, loc.latitude, loc.longitude);
         return distance <= maxDistance;
       })
-      .map((loc) => ({
+      .map((loc: any) => ({
         id: loc.id,
         userId: loc.userId,
         latitude: loc.latitude,
