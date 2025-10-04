@@ -142,8 +142,6 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
       latitude: number;
       longitude: number;
       address: string | null;
-      createdAt: Date;
-      updatedAt: Date;
       user: {
         id: string;
         name: string;
@@ -151,6 +149,26 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
         role: string;
         phone: string | null;
       };
+      createdAt: Date;
+      updatedAt: Date;
+    };
+
+    type NearbyLocation = {
+      id: string;
+      userId: string;
+      latitude: number;
+      longitude: number;
+      address: string | null;
+      user: {
+        id: string;
+        name: string;
+        email: string;
+        role: string;
+        phone: string | null;
+      };
+      distance: number;
+      createdAt: Date;
+      updatedAt: Date;
     };
 
     const nearby = locations
@@ -158,24 +176,26 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
         const distance = haversine(lat, lon, loc.latitude, loc.longitude);
         return distance <= maxDistance;
       })
-      .map((loc: LocationWithUser) => ({
-        id: loc.id,
-        userId: loc.userId,
-        latitude: loc.latitude,
-        longitude: loc.longitude,
-        address: loc.address,
-        user: {
-          id: loc.user.id,
-          name: loc.user.name,
-          email: loc.user.email,
-          role: loc.user.role,
-          phone: loc.user.phone,
-        },
-        distance: haversine(lat, lon, loc.latitude, loc.longitude),
-        createdAt: loc.createdAt,
-        updatedAt: loc.updatedAt,
-      }))
-      .sort((a, b) => a.distance - b.distance);
+      .map(
+        (loc: LocationWithUser): NearbyLocation => ({
+          id: loc.id,
+          userId: loc.userId,
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+          address: loc.address,
+          user: {
+            id: loc.user.id,
+            name: loc.user.name,
+            email: loc.user.email,
+            role: loc.user.role,
+            phone: loc.user.phone,
+          },
+          distance: haversine(lat, lon, loc.latitude, loc.longitude),
+          createdAt: loc.createdAt,
+          updatedAt: loc.updatedAt,
+        })
+      )
+      .sort((a: NearbyLocation, b: NearbyLocation) => a.distance - b.distance);
 
     return res.status(200).json(nearby);
   } catch (error) {
