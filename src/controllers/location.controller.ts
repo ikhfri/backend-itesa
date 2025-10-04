@@ -94,7 +94,6 @@ export const upsertLocation = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 export const getNearbyLocations = async (req: Request, res: Response) => {
   try {
     const schema = z.object({
@@ -115,12 +114,10 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
 
     const parsed = schema.safeParse(req.query);
     if (!parsed.success) {
-      return res
-        .status(400)
-        .json({
-          message: "Invalid query parameters",
-          errors: parsed.error.flatten(),
-        });
+      return res.status(400).json({
+        message: "Invalid query parameters",
+        errors: parsed.error.flatten(),
+      });
     }
 
     const { lat, lon, maxDistance } = parsed.data;
@@ -139,29 +136,14 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
       },
     });
 
+    type LocationWithUser = (typeof locations)[number];
+
     const nearby = locations
-      .filter(
-        (loc: {
-          id: string;
-          userId: string;
-          latitude: number;
-          longitude: number;
-          address: string | null;
-          createdAt: Date;
-          updatedAt: Date;
-          user: {
-            id: string;
-            name: string;
-            email: string;
-            role: string;
-            phone: string | null;
-          };
-        }) => {
-          const distance = haversine(lat, lon, loc.latitude, loc.longitude);
-          return distance <= maxDistance;
-        }
-      )
-      .map((loc) => ({
+      .filter((loc: LocationWithUser) => {
+        const distance = haversine(lat, lon, loc.latitude, loc.longitude);
+        return distance <= maxDistance;
+      })
+      .map((loc: LocationWithUser) => ({
         id: loc.id,
         userId: loc.userId,
         latitude: loc.latitude,
@@ -178,10 +160,7 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
         createdAt: loc.createdAt,
         updatedAt: loc.updatedAt,
       }))
-      .sort(
-        (a: { distance: number }, b: { distance: number }) =>
-          a.distance - b.distance
-      );
+      .sort((a, b) => a.distance - b.distance);
 
     return res.status(200).json(nearby);
   } catch (error) {
