@@ -10,11 +10,16 @@ import workerRoutes from "./routes/worker.routes";
 import serviceRoutes from "./routes/service.routes";
 import orderRoutes from "./routes/order.routes";
 import locationRoutes from "./routes/location.routes";
+import cors from "cors";
 
 dotenv.config();
 
 const app: Application = express();
 app.use(express.json());
+
+app.use(cors({
+  origin: "*",
+}))
 
 passport.use(
   new GoogleStrategy(
