@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import { Role } from "@prisma/client";
+import jwt from "jsonwebtoken";
 
 export const authMiddleware = (requiredRole?: Role | Role[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -18,8 +18,9 @@ export const authMiddleware = (requiredRole?: Role | Role[]) => {
         const roles = Array.isArray(requiredRole)
           ? requiredRole
           : [requiredRole];
-        if (!roles.includes(decoded.role))
+        if (!roles.includes(decoded.role)) {
           return res.status(403).json({ message: "Forbidden" });
+        }
       }
 
       next();

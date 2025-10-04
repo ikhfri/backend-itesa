@@ -140,11 +140,28 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
     });
 
     const nearby = locations
-      .filter((loc) => {
-        const distance = haversine(lat, lon, loc.latitude, loc.longitude);
-        return distance <= maxDistance;
-      })
-      .map((loc: any) => ({
+      .filter(
+        (loc: {
+          id: string;
+          userId: string;
+          latitude: number;
+          longitude: number;
+          address: string | null;
+          createdAt: Date;
+          updatedAt: Date;
+          user: {
+            id: string;
+            name: string;
+            email: string;
+            role: string;
+            phone: string | null;
+          };
+        }) => {
+          const distance = haversine(lat, lon, loc.latitude, loc.longitude);
+          return distance <= maxDistance;
+        }
+      )
+      .map((loc) => ({
         id: loc.id,
         userId: loc.userId,
         latitude: loc.latitude,
@@ -161,7 +178,10 @@ export const getNearbyLocations = async (req: Request, res: Response) => {
         createdAt: loc.createdAt,
         updatedAt: loc.updatedAt,
       }))
-      .sort((a, b) => a.distance - b.distance);
+      .sort(
+        (a: { distance: number }, b: { distance: number }) =>
+          a.distance - b.distance
+      );
 
     return res.status(200).json(nearby);
   } catch (error) {

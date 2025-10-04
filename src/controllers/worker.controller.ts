@@ -87,16 +87,33 @@ export const getNearbyWorkers = async (req: Request, res: Response) => {
 
   const userLat = parseFloat(lat as string);
   const userLon = parseFloat(lon as string);
+  const maxDistNum = parseFloat(maxDistance as string);
 
   const workers = await prisma.worker.findMany({
-    include: { user: { include: { location: true } } },
-  });
-  const nearby = workers.filter((w) => {
-    const loc = w.user.location;
-    if (!loc) return false;
-    const dist = haversine(userLat, userLon, loc.latitude, loc.longitude);
-    return dist <= parseFloat(maxDistance as string);
+    include: {
+      user: {
+        include: {
+          location: true,
+        },
+      },
+    },
   });
 
-  res.json(nearby);
+  type WorkerWithLocation = (typeof workers)[number] & {
+    user: {
+      location: {
+        latitude: number;
+        longitude: number;
+      } | null;
+    };
+  };
+
+  const nearby = workers.filter((w: WorkerWithLocation) => {
+    const loc = w.user.location;
+    if (!loc) return false;
+    const distance = haversine(userLat, userLon, loc.latitude, loc.longitude);
+    return distance <= maxDistNum;
+  });
+
+  return res.json(nearby);
 };
